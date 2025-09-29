@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Untuk Kamu — Istirahat Dulu</title>
+  <style>
+    :root{
+      --bg1:#f6f3ff;
+      --bg2:#fff1f8;
+      --card:#ffffff;
+      --accent:#ff6b9a;
+      --muted:#6b6b7a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(255,235,246,0.6), transparent 10%),
+                  radial-gradient(900px 500px at 90% 90%, rgba(232,240,255,0.6), transparent 10%),
+                  linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex;align-items:center;justify-content:center;padding:24px;
+    }
+    .card{
+      width:100%;max-width:880px;background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(26,24,40,0.08);padding:36px;display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:center;
+    }
+    .left{
+      padding:8px 4px;
+    }
+    h1{margin:0 0 10px;font-size:28px;color:#191828}
+    p.lead{margin:0 0 18px;color:var(--muted);line-height:1.6}
+    .breath{
+      width:200px;height:200px;border-radius:999px;display:flex;align-items:center;justify-content:center;margin-top:12px;position:relative;
+    }
+    .circle{width:140px;height:140px;border-radius:999px;background:linear-gradient(180deg, rgba(255,107,154,0.12), rgba(255,183,199,0.08));display:flex;align-items:center;justify-content:center;transition:transform .9s ease;}
+    .circle.pulse{transform:scale(1.22);}
+    .circle span{font-weight:600;color:var(--accent)}
+    .controls{display:flex;gap:10px;margin-top:18px}
+    button{border:0;padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer}
+    .btn-soft{background:transparent;color:var(--accent);border:2px solid rgba(255,107,154,0.16)}
+    .btn-strong{background:var(--accent);color:white;box-shadow:0 6px 18px rgba(255,107,154,0.18)}
+
+    /* right column */
+    .right{display:flex;flex-direction:column;align-items:center;gap:14px}
+    .heart{width:220px;height:220px;display:flex;align-items:center;justify-content:center;border-radius:20px;background:linear-gradient(180deg, rgba(255,240,246,0.9), rgba(255,255,255,0.6));box-shadow:inset 0 1px 0 rgba(255,255,255,0.6)}
+    .svg-heart{width:120px;height:120px}
+    .note{font-size:14px;color:var(--muted);text-align:center}
+
+    footer{grid-column:1/-1;margin-top:8px;color:#9a98a6;font-size:13px;text-align:center}
+
+    /* responsive */
+    @media (max-width:880px){
+      .card{grid-template-columns:1fr;}
+      .right{order:-1}
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <div class="left">
+      <h1>Untuk Lulu Apdila Yang Capek❤️</h1>
+      <p class="lead">Tarik napas. Keluarkan pelan-pelan. Istirahat itu bukan malas — itu merawat dirimu. Aku di sini, selalu siap menemanimu,kapan saja.</p>
+
+      <div class="breath" aria-hidden>
+        <div class="circle" id="circle"><span id="breathText">Tarik Napas</span></div>
+      </div>
+
+      <div class="controls" aria-hidden>
+        <button class="btn-soft" id="toggleBreath">Mulai Napas</button>
+        <button class="btn-strong" id="hugBtn">Kirim Peluk 🤗</button>
+      </div>
+
+      <p style="margin-top:18px;color:#6b6b7a">Catatan: tekan <strong>Mulai Napas</strong> lalu ikuti instruksi "Tarik Napas / Tahan / Hembuskan" selama 1—2 menit untuk menenangkan sistem saraf.</p>
+    </div>
+
+    <aside class="right">
+      <div class="heart" aria-hidden>
+        <!-- simple heart SVG with gentle animation -->
+        <svg class="svg-heart" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="heartSvg">
+          <path d="M12 21s-7.5-4.35-9.07-6.03C1.92 13.6 1 11.9 1 9.9 1 7 3 5 5.9 5c1.7 0 3.2.9 4.1 2.2C10.9 5.9 12.4 5 14.1 5 17 5 19 7 19 9.9c0 2-.92 3.7-1.93 5.07C19.5 16.65 12 21 12 21z" stroke="none" fill="url(#g)"/>
+          <defs>
+            <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#ff9bb0"/>
+              <stop offset="1" stop-color="#ff6b9a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <p class="note">Tekan "Kirim Peluk" untuk animasi kecil — cocok dikirim lewat pesan juga.</p>
+
+      <div style="font-size:13px;color:#9a98a6;text-align:center">Buat Lulu Apdila — penuh sayang 💌</div>
+    </aside>
+
+    <footer>By : Haikal.</footer>
+  </div>
+
+  <script>
+    // breathing helper
+    const circle = document.getElementById('circle');
+    const breathText = document.getElementById('breathText');
+    const toggleBtn = document.getElementById('toggleBreath');
+    let breathing = false;
+    let breathInterval;
+
+    function startBreathing(){
+      let step = 0; // 0: in,1:hold,2:out,3:hold
+      const steps = [ {text:'Tarik Napas', duration:4000, scale:1.22}, {text:'Tahan', duration:1500, scale:1.22}, {text:'Hembuskan', duration:5000, scale:1}, {text:'Tahan', duration:1500, scale:1}];
+      breathInterval = setInterval(()=>{
+        const s = steps[step];
+        breathText.textContent = s.text;
+        if(s.scale>1) circle.classList.add('pulse'); else circle.classList.remove('pulse');
+        step = (step+1)%steps.length;
+      }, 11000/1); // we'll manage durations manually below
+
+      // run a timed loop that respects durations
+      let idx=0;
+      function loop(){
+        if(!breathing) return;
+        const s = steps[idx];
+        breathText.textContent = s.text;
+        if(s.scale>1) circle.classList.add('pulse'); else circle.classList.remove('pulse');
+        setTimeout(()=>{ idx = (idx+1)%steps.length; loop(); }, s.duration);
+      }
+      loop();
+    }
+    function stopBreathing(){
+      breathing=false; clearInterval(breathInterval); circle.classList.remove('pulse'); breathText.textContent='Tarik Napas';
+    }
+
+    toggleBtn.addEventListener('click', ()=>{
+      breathing = !breathing;
+      if(breathing){ toggleBtn.textContent='Hentikan'; startBreathing(); }
+      else { toggleBtn.textContent='Mulai Napas'; stopBreathing(); }
+    });
+
+    // hug animation
+    const hugBtn = document.getElementById('hugBtn');
+    hugBtn.addEventListener('click', ()=>{
+      hugBtn.disabled = true;
+      hugBtn.textContent = 'Mengirim...';
+      // small fun animation: pulse heart and flash background softly
+      const heart = document.getElementById('heartSvg');
+      heart.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.08)' },
+        { transform: 'scale(1)' }
+      ], { duration: 900, easing: 'ease-out' });
+
+      document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.04)'},{filter:'brightness(1)'}],{duration:900});
+
+      setTimeout(()=>{ hugBtn.textContent='Peluk Terkirim 🤗'; hugBtn.disabled=false; }, 900);
+    });
+
+    // simple calming sound built with WebAudio (no external file)
+    let audioCtx; let master;
+    function createCalmTone(){
+      if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      master = audioCtx.createGain(); master.gain.value = 0.06; master.connect(audioCtx.destination);
+      // create two oscillators for a gentle, detuned pad
+      const o1 = audioCtx.createOscillator(); const o2 = audioCtx.createOscillator();
+      const g1 = audioCtx.createGain(); const g2 = audioCtx.createGain();
+      o1.type='sine'; o2.type='sine'; o1.frequency.value=220; o2.frequency.value=277.18; // A3 and C#4
+      g1.gain.value=0.5; g2.gain.value=0.4;
+      const lfo = audioCtx.createOscillator(); const lfoGain = audioCtx.createGain();
+      lfo.type='sine'; lfo.frequency.value=0.15; lfoGain.gain.value=10; lfo.connect(lfoGain);
+      // lowpass
+      const lp = audioCtx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900;
+      o1.connect(g1); o2.connect(g2); g1.connect(lp); g2.connect(lp); lp.connect(master);
+      lfoGain.connect(o1.frequency); lfoGain.connect(o2.frequency);
+      o1.start(); o2.start(); lfo.start();
+      // stop after 2 minutes auto
+      setTimeout(()=>{ try{ o1.stop(); o2.stop(); lfo.stop(); }catch(e){} }, 120000);
+    }
+
+    // play/pause control by double-click on heart
+    const heartBox = document.querySelector('.heart');
+    heartBox.addEventListener('dblclick', ()=>{
+      if(!audioCtx || audioCtx.state==='suspended'){
+        createCalmTone();
+      }
+    });
+
+    // small accessibility: allow space to toggle breathing if focused
+    toggleBtn.addEventListener('keydown', (e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggleBtn.click(); }});
+    hugBtn.addEventListener('keydown', (e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); hugBtn.click(); }});
+  </script>
+</body>
+</html>
